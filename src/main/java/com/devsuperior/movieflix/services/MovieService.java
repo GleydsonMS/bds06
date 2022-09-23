@@ -30,22 +30,20 @@ public class MovieService {
 
     @Transactional(readOnly = true)
     public MovieDTO findById(Long id) {
-        Movie movie = repository.findById(id).orElseThrow(() ->new ResourceNotFoundException("Entity not found"));
+        Movie movie = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
         return new MovieDTO(movie);
     }
 
     @Transactional(readOnly = true)
     public List<ReviewDTO> findReviewsByMovieId(Long id) {
-        Movie movie = repository.findById(id).orElseThrow(() ->new ResourceNotFoundException("Entity not found"));
+        Movie movie = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
         return movie.getReviews().stream().map(ReviewDTO::new).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public Page<MovieGenreDTO> findMoviesByGenreId(Long id, Pageable pageable) {
         Genre genre = (id == 0) ? null : genreRepository.getOne(id);
-        Page<Movie> movies =
-                (genre == null) ? repository.findAll(PageRequest.of(0, 10, Sort.by("title"))) :
-                        repository.findByGenre(genre, pageable);
+        Page<Movie> movies = repository.find(genre, pageable);
         return movies.map(MovieGenreDTO::new);
     }
 }
